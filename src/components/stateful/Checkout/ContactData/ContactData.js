@@ -2,6 +2,7 @@ import React, { Component } from "react";
 
 import Button from "../../../UI/Button/Button"
 import Spinner from "../../../UI/Spinner/Spinner"
+import Input from "../../../UI/Input/Input";
 
 import classes from "./ContactData.module.css";
 
@@ -47,10 +48,10 @@ class ContactData extends Component {
         let form = <div className={classes.ContactData}>
             <h4>Enter your contact info:</h4>
             <form>
-                <input className={classes.Input} type="text" name="name" placeholder="name" />
-                <input className={classes.Input} type="email" name="email" placeholder="email" />
-                <input className={classes.Input} type="text" name="street" placeholder="street address" />
-                <input className={classes.Input} type="text" name="zipcode" placeholder="zipcode" />
+                <Input inputtype="input" type="text" name="name" placeholder="name" />
+                <Input inputtype="input" type="email" name="email" placeholder="email" />
+                <Input inputtype="input" type="text" name="street" placeholder="street address" />
+                <Input inputtype="input" type="text" name="zipcode" placeholder="zipcode" />
                 <Button buttonType="Success" clicked={this.orderHandler}>Order</Button>
             </form>
         </div>;
