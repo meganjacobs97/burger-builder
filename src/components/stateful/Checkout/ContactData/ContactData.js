@@ -10,11 +10,56 @@ import axios from "../../../../axios-orders";
 
 class ContactData extends Component {
     state = {
-        name: "",
-        email: "",
-        address: {
-            street: "",
-            zipcode: null,
+        orderForm: {
+            name: {
+                elementType: "input",
+                elementConfig: {
+                    type: "text",
+                    placeholder: "name",
+                },
+                value: ""
+            },
+            email: {
+                elementType: "input",
+                elementConfig: {
+                    type: "email",
+                    placeholder: "email",
+                },
+                value: ""
+            },
+            street: {
+                elementType: "input",
+                elementConfig: {
+                    type: "text",
+                    placeholder: "street address"
+                },
+                value: ""
+            },
+            zipcode: {
+                elementType: "input",
+                elementConfig: {
+                    type: "text",
+                    placeholder: "zipcode",
+                },
+                value: ""
+            },
+            country: {
+                elementType: "input",
+                elementConfig: {
+                    type: "text",
+                    placeholder: "country"
+                },
+                value: ""
+            },
+            deliveryMethod: {
+                elementType: "select",
+                elementConfig: {
+                    options: [
+                        { value: "fastest", displayValue: "Fastest" },
+                        { value: "cheapest", displayValue: "Cheapest" }]
+                },
+                value: "fastest"
+            }
         },
         sendingPurchase: false
     }
@@ -44,14 +89,32 @@ class ContactData extends Component {
             this.setState({ sendingPurchase: false });
         })
     }
+
+    handleInputChange = (event) => {
+
+    }
+
     render() {
+        //turn orderform state into an array of elements 
+        const formEls = [];
+        for (let key in this.state.orderForm) {
+            formEls.push({
+                id: key,
+                config: this.state.orderForm[key]
+            });
+        }
+        //create form by looping through array
         let form = <div className={classes.ContactData}>
             <h4>Enter your contact info:</h4>
             <form>
-                <Input inputtype="input" type="text" name="name" placeholder="name" />
-                <Input inputtype="input" type="email" name="email" placeholder="email" />
-                <Input inputtype="input" type="text" name="street" placeholder="street address" />
-                <Input inputtype="input" type="text" name="zipcode" placeholder="zipcode" />
+                {formEls.map(formEl => {
+                    return <Input
+                        key={formEl.id}
+                        elementType={formEl.config.elementType}
+                        elementConfig={formEl.config.elementConfig}
+                        value={formEl.config.value}
+                    />;
+                })}
                 <Button buttonType="Success" clicked={this.orderHandler}>Order</Button>
             </form>
         </div>;
