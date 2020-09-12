@@ -5,16 +5,26 @@ import classes from "./Input.module.css";
 const Input = props => {
     let inputEl = null;
 
+    const inputClasses = [classes.InputEl];
+    if (props.invalid && props.shouldValidate) {
+        inputClasses.push(classes.Invalid)
+    }
+
+    let errorMessage = props.errorMessage;
+    if (props.errorMessage === "") {
+        errorMessage = null;
+    }
+
     switch (props.elementType) {
         case ("input"):
-            inputEl = <input className={classes.InputEl} {...props.elementConfig} value={props.value} onChange={props.changed} />
+            inputEl = <input className={inputClasses.join(" ")} {...props.elementConfig} value={props.value} onChange={props.changed} />
             break;
         case ("textarea"):
-            inputEl = <textarea {...props.elementConfig} value={props.value} onChange={props.changed} />
+            inputEl = <textarea className={inputClasses.join(" ")} {...props.elementConfig} value={props.value} onChange={props.changed} />
             break;
         case ("select"):
             inputEl = (
-                <select className={classes.InputEl} value={props.value} onChange={props.changed}>
+                <select className={inputClasses.join(" ")} value={props.value} onChange={props.changed}>
                     {
                         props.elementConfig.options.map(option => {
                             return <option key={option.value} value={option.value}>{option.displayValue}</option>
@@ -30,6 +40,7 @@ const Input = props => {
     return <div className={classes.Input}>
         <label className={classes.Label}>{props.label}</label>
         {inputEl}
+        {errorMessage}
     </div>
 }
 

@@ -17,7 +17,13 @@ class ContactData extends Component {
                     type: "text",
                     placeholder: "name",
                 },
-                value: ""
+                value: "",
+                validation: {
+                    required: true
+                },
+                valid: false,
+                errorMessage: "",
+                changed: false
             },
             email: {
                 elementType: "input",
@@ -25,7 +31,13 @@ class ContactData extends Component {
                     type: "email",
                     placeholder: "email",
                 },
-                value: ""
+                value: "",
+                validation: {
+                    required: true
+                },
+                valid: false,
+                errorMessage: "",
+                changed: false
             },
             street: {
                 elementType: "input",
@@ -33,7 +45,13 @@ class ContactData extends Component {
                     type: "text",
                     placeholder: "street address"
                 },
-                value: ""
+                value: "",
+                validation: {
+                    required: true
+                },
+                valid: false,
+                errorMessage: "",
+                changed: false
             },
             zipcode: {
                 elementType: "input",
@@ -41,7 +59,15 @@ class ContactData extends Component {
                     type: "text",
                     placeholder: "zipcode",
                 },
-                value: ""
+                value: "",
+                validation: {
+                    required: true,
+                    minLength: 5,
+                    maxLength: 5
+                },
+                valid: false,
+                errorMessage: "",
+                changed: false
             },
             country: {
                 elementType: "input",
@@ -49,7 +75,13 @@ class ContactData extends Component {
                     type: "text",
                     placeholder: "country"
                 },
-                value: ""
+                value: "",
+                validation: {
+                    required: true
+                },
+                valid: false,
+                errorMessage: "",
+                changed: false
             },
             deliveryMethod: {
                 elementType: "select",
@@ -58,36 +90,12 @@ class ContactData extends Component {
                         { value: "fastest", displayValue: "Fastest" },
                         { value: "cheapest", displayValue: "Cheapest" }]
                 },
-                value: "fastest"
+                value: "fastest",
+                valid: true,
+                changed: false
             }
         },
         sendingPurchase: false
-    }
-
-    orderHandler = (event) => {
-        event.preventDefault();
-        this.setState({ sendingPurchase: true });
-        const order = {
-            ingredients: this.props.ingredients,
-            price: this.props.price,
-            // dummy data to be overwritten when form is added
-            customer: {
-                name: "Rory Kees",
-                email: "test@test.com",
-                address: "1234 Test Drive",
-                country: "USA",
-                zipcode: 98503
-            },
-            deliveryMethod: "fastest"
-        }
-        //add .json because we're using firebase 
-        axios.post("/orders.json", order).then(res => {
-            this.setState({ sendingPurchase: false });
-            this.props.history.push("/");
-
-        }).catch(err => {
-            this.setState({ sendingPurchase: false });
-        })
     }
 
     handleInputChange = (event, formElID) => {
@@ -98,11 +106,87 @@ class ContactData extends Component {
 
         //set value to form's value 
         updatedFormEl.value = event.target.value;
+        //check validity and set error message
+        updatedFormEl.valid = this.validateInput(updatedFormEl.value, updatedFormEl.validation, updatedFormEl)
+        //set changed to true 
+        updatedFormEl.changed = true;
         //update form 
         updatedOrderForm[formElID] = updatedFormEl;
 
         //update state
         this.setState({ orderForm: updatedOrderForm });
+    }
+
+    validateInput = (value, rules, el) => {
+        let isValid = true;
+
+        if (rules && rules.required) {
+            isValid = value.trim() !== "" && isValid;
+            if (!isValid) {
+                el.errorMessage = `You must enter a ${el.elementConfig.placeholder}.`
+            }
+            else {
+                el.errorMessage = "";
+            }
+        }
+
+        if (rules && rules.minLength) {
+            isValid = value.trim().length >= rules.minLength && isValid;
+            if (!isValid) {
+                if (el.errorMessage === "") {
+                    el.errorMessage = `The ${el.elementConfig.placeholder} must have a minimum length of ${rules.minLength}.`
+                }
+                else {
+                    el.errorMessage += ` The ${el.elementConfig.placeholder} must have a minimum length of ${rules.minLength}.`
+                }
+            }
+            else {
+                el.errorMessage = "";
+            }
+        }
+
+        if (rules && rules.maxLength) {
+            isValid = value.trim().length <= rules.maxLength && isValid;
+            if (!isValid) {
+                if (el.errorMessage === "") {
+                    el.errorMessage = `The ${el.elementConfig.placeholder} must have a maximum length of ${rules.minLength}.`
+                }
+                else {
+                    el.errorMessage += ` The ${el.elementConfig.placeholder} must have a maximum length of ${rules.maxLength}.`
+                }
+            }
+            else {
+                el.errorMessage = "";
+            }
+        }
+
+        if (isValid) {
+            el.errorMessage = "";
+        }
+
+        return isValid;
+    }
+
+    orderHandler = (event) => {
+        event.preventDefault();
+        this.setState({ sendingPurchase: true });
+        const formData = {};
+        for (let formEl in this.state.orderForm) {
+            formData[formEl] = this.state.orderForm[formEl].value;
+        }
+        const order = {
+            ingredients: this.props.ingredients,
+            price: this.props.price,
+            orderData: formData
+        }
+        //add .json because we're using firebase 
+        axios.post("/orders.json", order).then(res => {
+            this.setState({ sendingPurchase: false });
+            this.props.history.push("/");
+
+        }).catch(err => {
+            this.setState({ sendingPurchase: false });
+        })
     }
 
     render() {
@@ -117,17 +201,20 @@ class ContactData extends Component {
         //create form by looping through array
         let form = <div className={classes.ContactData}>
             <h4>Enter your contact info:</h4>
-            <form>
+            <form onSubmit={this.orderHandler}>
                 {formEls.map(formEl => {
                     return <Input
                         key={formEl.id}
                         elementType={formEl.config.elementType}
                         elementConfig={formEl.config.elementConfig}
                         value={formEl.config.value}
+                        invalid={!formEl.config.valid}
+                        shouldValidate={formEl.config.changed}
+                        errorMessage={formEl.config.errorMessage}
                         changed={(event) => this.handleInputChange(event, formEl.id)}
                     />;
                 })}
-                <Button buttonType="Success" clicked={this.orderHandler}>Order</Button>
+                <Button buttonType="Success">Order</Button>
             </form>
         </div>;
         if (this.state.sendingPurchase) {
