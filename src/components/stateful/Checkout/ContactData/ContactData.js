@@ -95,6 +95,7 @@ class ContactData extends Component {
                 changed: false
             }
         },
+        formIsValid: false,
         sendingPurchase: false
     }
 
@@ -113,8 +114,14 @@ class ContactData extends Component {
         //update form 
         updatedOrderForm[formElID] = updatedFormEl;
 
+        //check if form is valid 
+        let formIsValid = true;
+        for (let input in updatedOrderForm) {
+            formIsValid = updatedOrderForm[input].valid && formIsValid;
+        }
+
         //update state
-        this.setState({ orderForm: updatedOrderForm });
+        this.setState({ orderForm: updatedOrderForm, formIsValid: formIsValid });
     }
 
     validateInput = (value, rules, el) => {
@@ -214,7 +221,7 @@ class ContactData extends Component {
                         changed={(event) => this.handleInputChange(event, formEl.id)}
                     />;
                 })}
-                <Button buttonType="Success">Order</Button>
+                <Button buttonType="Success" disabled={!this.state.formIsValid}>Order</Button>
             </form>
         </div>;
         if (this.state.sendingPurchase) {
