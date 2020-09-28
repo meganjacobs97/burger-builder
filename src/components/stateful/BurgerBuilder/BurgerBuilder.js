@@ -12,8 +12,6 @@ import * as actionTypes from "../../../store/actions"
 
 class BurgerBuilder extends Component {
     state = {
-        totalPrice: 5,
-        purchaseable: false,
         purchasing: false,
         sendingPurchase: false,
         error: false
@@ -36,29 +34,18 @@ class BurgerBuilder extends Component {
     }
 
     purchaseContinuedHandler = () => {
-        //build query string 
-        const queryParams = [];
-        for (let i in this.props.ings) {
-            queryParams.push(encodeURIComponent(i) + "=" + encodeURIComponent(this.props.ings[i]))
-
-        }
-        queryParams.push(`price=${this.props.price}`)
-        const queryString = queryParams.join("&");
         //push a new page onto the stack of pages 
-        this.props.history.push({
-            pathname: "/checkout",
-            search: "?" + queryString
-        });
+        this.props.history.push("/checkout");
     }
 
-    updatePurchaseState = (ingredients) => {
+    getPurchaseState = (ingredients) => {
         const sum = Object.keys(ingredients).map(key => {
             return ingredients[key];
         }).reduce((sum, el) => {
             return sum + el;
         }, 0)
 
-        this.setState({ purchaseable: sum > 0 })
+        return sum > 0;
     }
 
     addIngredientHandler = (type) => {
@@ -137,7 +124,7 @@ class BurgerBuilder extends Component {
                     ingredientAddedHandler={this.props.onAddIngredient}
                     ingredientRemovedHandler={this.props.onRemoveIngredient}
                     disabled={disabledInfo}
-                    purchaseable={this.state.purchaseable}
+                    purchaseable={this.getPurchaseState(this.props.ings)}
                     ordered={this.purchasingHandler} />
             </Wrapper>
         }
