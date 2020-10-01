@@ -15,7 +15,7 @@ export const removeIngredient = (payload) => {
     return {
         type: actionTypes.REMOVE_INGREDIENT,
         payload: {
-            payload: payload.ingredient
+            ingredient: payload.ingredient
         }
     }
 }
