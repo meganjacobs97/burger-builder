@@ -12,7 +12,8 @@ export const authSuccess = payload => {
     return {
         type: actionTypes.AUTH_SUCCESS,
         payload: {
-            authData: payload.authData
+            token: payload.idToken,
+            userId: payload.localId
         }
     }
 }
@@ -20,7 +21,9 @@ export const authSuccess = payload => {
 export const authError = err => {
     return {
         type: actionTypes.AUTH_ERROR,
-        error: err
+        payload: {
+            error: err
+        }
     }
 }
 
@@ -38,8 +41,7 @@ export const auth = (payload, isSignUp) => {
         }
         axios.post(url, authData)
             .then(res => {
-                console.log(res);
-                dispatch(authSuccess(res));
+                dispatch(authSuccess(res.data));
             })
             .catch(err => {
                 console.log(err);
