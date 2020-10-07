@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux"
-import axios from "axios";
+
 
 import Button from "../../UI/Button/Button";
 import Input from "../../UI/Input/Input";
@@ -43,7 +43,8 @@ class Auth extends Component {
                 changed: false
             }
 
-        }
+        },
+        isSignUp: true
     }
 
     handleInputChange = (event, formElID) => {
@@ -65,6 +66,11 @@ class Auth extends Component {
 
         //update state
         this.setState({ controls: updatedform });
+    }
+
+    handleSwitchAuthMode = event => {
+        event.preventDefault();
+        this.setState({ isSignUp: !this.state.isSignUp });
     }
 
 
@@ -120,7 +126,7 @@ class Auth extends Component {
 
     submitHandler = (event) => {
         event.preventDefault();
-        this.props.authorize(this.state.controls.email.value, this.state.controls.password.value)
+        this.props.authorize(this.state.controls.email.value, this.state.controls.password.value, this.state.isSignUp)
     }
 
     render() {
@@ -150,8 +156,9 @@ class Auth extends Component {
             <div className={classes.Auth}>
                 <form onSubmit={this.submitHandler}>
                     {form}
-                    <Button buttonType="Success">Submit</Button>
+                    <Button buttonType="Success">{this.state.isSignUp ? "SIGN UP" : "SIGN IN"}</Button>
                 </form>
+                <Button clicked={this.handleSwitchAuthMode} buttonType="Danger">SWITCH TO {this.state.isSignUp ? "SIGN IN" : "SIGN UP"}</Button>
             </div>
         )
     }
@@ -164,7 +171,7 @@ const mapStateToProps = state => {
 }
 const mapDispatchToProps = dispatch => {
     return {
-        authorize: (email, password) => dispatch(actionCreators.auth({ email: email, password: password }))
+        authorize: (email, password, isSignUp) => dispatch(actionCreators.auth({ email: email, password: password }, isSignUp))
     }
 }
 
