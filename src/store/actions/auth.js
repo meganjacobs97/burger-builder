@@ -44,8 +44,7 @@ export const auth = (payload, isSignUp) => {
                 dispatch(authSuccess(res.data));
             })
             .catch(err => {
-                console.log(err);
-                dispatch(authError(err));
+                dispatch(authError(err.response.data.error));
             })
     }
 }

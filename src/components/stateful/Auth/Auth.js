@@ -4,6 +4,7 @@ import { connect } from "react-redux"
 
 import Button from "../../UI/Button/Button";
 import Input from "../../UI/Input/Input";
+import Spinner from "../../UI/Spinner/Spinner"
 
 import classes from "./Auth.module.css"
 
@@ -139,7 +140,7 @@ class Auth extends Component {
             });
         }
 
-        const form = formEls.map(el => {
+        let form = formEls.map(el => {
             return <Input
                 key={el.id}
                 elementType={el.config.elementType}
@@ -152,9 +153,19 @@ class Auth extends Component {
             />
         })
 
+        if (this.props.loading) {
+            form = <Spinner />
+        }
+
+        let error = null;
+        if (this.props.error) {
+            error = <p>{this.props.error.message}</p>
+        }
+
         return (
             <div className={classes.Auth}>
                 <form onSubmit={this.submitHandler}>
+                    {error}
                     {form}
                     <Button buttonType="Success">{this.state.isSignUp ? "SIGN UP" : "SIGN IN"}</Button>
                 </form>
@@ -166,7 +177,8 @@ class Auth extends Component {
 
 const mapStateToProps = state => {
     return {
-
+        loading: state.auth.loading,
+        error: state.auth.error
     };
 }
 const mapDispatchToProps = dispatch => {
